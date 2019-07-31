@@ -3,10 +3,22 @@
 
 
 * <a href="#1">Listening to Events</a>
+
 * <a href="#2">Outputting Content</a>
+
 * <a href="#3">Getting User Input</a>
+
 * <a href="#4">Angular Material</a>
+
 * <a href="#5">Adding a Toolbar</a>
+
+* <a href="#6">Outputting Posts</a>
+
+* <a href="#7">Diving Into Structural Directives</a>
+
+* <a href="#8">Creating Posts with Property & Event Binding</a>
+
+  
 
 **app.component.ts**
 
@@ -153,7 +165,7 @@ export class PostCreateComponent {
 }
 ```
 
-![pic](userinput.jpg)
+![input](userinput.png)
 
 **two-way binding**
 
@@ -213,3 +225,145 @@ import { MatInputModule, MatCardModule, MatFormFieldModule, MatToolbarModule } f
 
 ![toolbar](toolbar.png)
 
+ 
+
+## <a name="6">Outputting Posts</a>
+
+```{html}
+<mat-accordion multi="true" *ngIf="posts.length > 0">
+  <mat-expansion-panel *ngFor="let post of posts">
+    <mat-expansion-panel-header>
+      {{ post.title }}
+    </mat-expansion-panel-header>
+    <p>{{ post.content }}</p>
+  </mat-expansion-panel>
+</mat-accordion>
+```
+
+// posts = [
+
+  //   {title: 'First Post', content: 'This is the first podt\'s content'},
+
+  //   {title: 'Second Post', content: 'This is the second podt\'s content'},
+
+  //   {title: 'Third Post', content: 'This is the third podt\'s content'},
+
+  // ];
+
+use **directives** to loop through the post array
+
+
+
+## <a name="7">Diving Into Structural Directives</a>
+
+change the element structure
+
+ngFor**
+
+<mat-expansion-panel *ngFor="let post of posts"> repeat the element as often as possible
+
+**ngIf**
+
+<mat-accordion multi="true" *ngIf="posts.length > 0">
+
+
+
+## <a name="8">Creating Posts with Property & Event Binding</a>
+
+we want to listen to the event in the <app-post-create> component and get the created post and add it to the post array.
+
+**app.component.html**
+
+must listen event from the outside which means the parent component
+
+```{html}
+<app-header></app-header>
+
+<main>
+  <div>
+    <app-post-create (postCreated)="onPostAdded($event)"></app-post-create>
+    <app-post-list [posts]="storedPosts"></app-post-list>
+
+
+  </div>
+</main>
+
+```
+
+postCreated 是app-post-created里面定义的
+
+@Output() postCreated = new EventEmitter(); 
+
+**post-create.component.ts**
+
+```{typescript}
+import { Component, EventEmitter, Output } from '@angular/core';
+
+@Component({
+  selector: 'app-post-create',
+  templateUrl: './post-create.component.html',
+  styleUrls: ['./post-create.component.css']
+})
+export class PostCreateComponent {
+  enterTitle = '';
+  enterContent = '';
+  @Output() postCreated = new EventEmitter(); // listen event from outside which means in the parent component
+  onAddPost() {
+    const post = {
+      title: this.enterTitle,
+      content: this.enterContent
+    };
+    this.postCreated.emit(post);
+    }
+}
+
+```
+
+
+
+post是app-post-list里面的属性
+
+@Input() posts
+
+```{typescript}
+import { Component, Input } from '@angular/core';
+
+@Component ({
+  selector: 'app-post-list',
+  templateUrl: './post-list.component.html',
+  styleUrls: ['./post-list.component.css']
+})
+export class PostListComponent {
+  // posts = [
+  //   {title: 'First Post', content: 'This is the first podt\'s content'},
+  //   {title: 'Second Post', content: 'This is the second podt\'s content'},
+  //   {title: 'Third Post', content: 'This is the third podt\'s content'},
+  // ];
+  @Input() posts = []; // bind the post only from outside
+}
+```
+
+
+
+
+
+**app.component.ts**
+
+```{typescript}
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  storedPosts = [];
+
+  onPostAdded(post) {
+    this.storedPosts.push(post); // store
+  }
+}
+```
+
+​	
